@@ -1,0 +1,61 @@
+name: talker
+services:
+
+  add_two_ints:
+    build: .
+    network_mode: host
+    environment: 
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+    restart: unless-stopped
+    command: ros2 run demo_nodes_cpp add_two_ints_client
+    depends_on:
+      husarnet: { condition: service_healthy } # husarnet service is healthy if all hosts listed in WAIT_HOSTNAMES are reachable
+
+  chatter:
+    build: .
+    network_mode: host
+    environment: 
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+    command: ros2 run demo_nodes_cpp talker
+    depends_on:
+      husarnet: { condition: service_healthy } # husarnet service is healthy if all hosts listed in WAIT_HOSTNAMES are reachable
+
+  zenoh-dds-bridge:
+    image: eclipse/zenoh-bridge-ros2dds:latest 
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - ROS_DISTRO=humble
+    stdin_open: true
+    tty: true
+    depends_on:
+      husarnet: { condition: service_healthy } # husarnet service is healthy if all hosts listed in WAIT_HOSTNAMES are reachable
+
+  zenoh-router:
+    image: eclipse/zenoh
+    network_mode: host
+    restart: unless-stopped
+    ports:
+      - 7447:7447
+      - 8000:8000
+    volumes:
+      - ./zenoh_docker:/root/.zenoh
+      # - ./talker-router-config.json5:/talker-router-config.json5 # if needed
+    environment:
+      - RUST_LOG=debug
+    # command: ["--config ./talker-router-config.json5"] # if needed
+ 
+  husarnet:
+    image: husarnet/husarnet:2.0.180
+    network_mode: host
+    volumes:
+      - /var/lib/husarnet:/var/lib/husarnet
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    environment:
+      - HOSTNAME=talker-host
+      - JOINCODE
+      - HUSARNET_DEBUG=1
+      - WAIT_HOSTNAMES=talker-host, listener-host
