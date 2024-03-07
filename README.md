@@ -21,3 +21,5 @@ docker compose -f ./compose.talker.yaml up
 docker compose -f ./compose.listener.yaml up
 ```
 
+### Filter ROS2 topics/services/actions
+Modify the `listener-dds-config.json5` allow/deny lists using regular expressions to control which ROS2 messages get through. 
