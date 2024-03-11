@@ -26,6 +26,6 @@ Modify the `listener-dds-config.json5` allow/deny lists using regular expression
 
 ## See more
 - [Zenoh](https://zenoh.io/)
-- Configure [Zenoh bridge](https://github.com/eclipse-zenoh/zenoh-plugin-dds)
+- Configure [Zenoh bridge]( https://github.com/eclipse-zenoh/zenoh-plugin-ros2dds)
 - Configure [Zenoh router](https://github.com/eclipse-zenoh/zenoh)
 - [Husarnet](https://husarnet.com/docs)
